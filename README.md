@@ -41,3 +41,9 @@ Licence:
 --------
 
 GPL until I come up with something better, possibly public domain if possible
+
+
+Author:
+-------
+
+Mark 'kaosat-dev' Moissette
