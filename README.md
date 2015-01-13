@@ -33,7 +33,7 @@ do not want to do documentation 2 years after I am fed up with a project: rememb
 Sub pages etc
 -------------
 
-[testing](../master/docs/testing)
+[testing](../master/docs/testing.md)
 
 
 

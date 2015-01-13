@@ -58,9 +58,9 @@ Test results
   > **Note:**
   > All Tested pumps can be found [here](#pumps) 
 
-Airlift design   | Pump Model   | Pumping heigh (m) | Water flow L/min
--------------    | -------------| --------------    | ----------------
-A2               | P0           | 0.6               | 0.0154
+Airlift design   | Pump Model   | Pumping height (m) | Works? | Water flow L/min
+-------------    | -------------| --------------     | -------| ---------
+A2               | P0           | 0.6                |  yes   | 0.0154
 
 
 
@@ -71,7 +71,7 @@ Blog, of sorts
 ###2015 Jan 13
 
 
-*Testing of **model A** (see pictures)*
+*Testing of **model A0** *
 
 - raw data
   0.10 L in 6 mins 28,37s 
