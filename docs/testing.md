@@ -18,8 +18,16 @@ Pump and airlilft designs testing
 Bought Pumps 
 ------------
 
-- 3W air pump : 60L / h (id: P0)
-- 6W air pump: 100L /h  (id: P1) **KO**
+- 3W air pump  : 60L / h (id: P0)
+- 6W air pump  : 100L /h (id: P1) **KO**
+- 3.5W air pump: 200L /h (id: p2) 
+
+Pump Id  |  Pump type   |  Power rating(W) | Works? | Air/Water flow L/h | Price (e) | ref 
+---------|--------------|----------------  |--------| -------------------| --------- | ---
+P0       |    air       |  3               | yes    |   60               | N/A       | N/A
+P1       |    air       |  6               | no     |   100              | N/A       | N/A
+P2       |    air       |  3.5             | yes    |   200              | 30        | N/A
+
 
 
 Built pumps
@@ -58,26 +66,14 @@ Test results
   > **Note:**
   > All Tested pumps can be found [here](#pumps) 
 
-Airlift design   | Pump Model   | Pumping height (m) | Works? | Water flow L/min
+Airlift design   | Pump Model   | Pumping height (m) | Works? | Water flow L/h
 -------------    | -------------| --------------     | -------| ---------
-A2               | P0           | 0.6                |  yes   | 0.0154
+A2               | P0           | 0.6                |  yes   | 0.92
+A3               | P0           | 0.6                |  no    | 0
+A3               | P2           | 0.6                |  yes   | **2.6**
 
 
 
 
-Blog, of sorts
-==============
 
-###2015 Jan 13
-
-
-*Testing of **model A0** *
-
-- raw data
-  0.10 L in 6 mins 28,37s 
-
-  ie 0.10L in 6.47283333 mins => 0.0154 L * min-1
-
-- notes: 
-  first sucessfull & reproducible test, other air pump (100L/H) seems to be half dead
   
