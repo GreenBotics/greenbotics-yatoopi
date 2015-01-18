@@ -59,6 +59,14 @@ by bqzero http://www.thingiverse.com/thing:609739 (id: A3)
   > but sadly, I was not able to find designs in any other 3d printable design repositories...
 
 
+So to recap (tables are easier to read or something ?)
+
+Airlift design Id  |  Airlift design name                       | design link   | Designer |  License  |
+------------------ | --------------------------------------     | --------------| -------  |  -------- |
+A0                 |  Conduit with Hole                         | http://www.thingiverse.com/thing:400341 |  3Dponics | CC-BY-NC-SA
+A1                 |  Airlift pump - air powered water pump     | http://www.thingiverse.com/thing:515591 |  gswatts  | CC-BY-SA
+A2                 |  Parametric Airlift Water Valve            | http://www.thingiverse.com/thing:14230  |  relet    | CC-BY-SA
+A3                 |  Water pump driven by air                  | http://www.thingiverse.com/thing:609739 |  bqzero   | CC-BY-NC-SA
 
 Test results
 -------------
