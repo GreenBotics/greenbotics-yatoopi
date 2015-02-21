@@ -3,7 +3,7 @@
 
 mediaGuard();
 
-module mediaGuard(height=100,innerDia=52,wallSize=4, baseLip=10, baseLipHeight=4, res=30){
+module mediaGuard(height=100,innerDia=52,wallSize=2.5, baseLip=10, baseLipHeight=4, res=30){
   fullDia = innerDia+wallSize*2;
   fudge= 0.1;
   
@@ -13,7 +13,7 @@ module mediaGuard(height=100,innerDia=52,wallSize=4, baseLip=10, baseLipHeight=4
   topNoWaterZoneHeight = 10;
   
   holesDia = 5;
-  holesRes = 8;
+  holesRes = 16;
   vertHolesDist = holesDia + 4;
   
   radHolesNb = 12;
