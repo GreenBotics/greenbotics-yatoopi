@@ -36,6 +36,26 @@ Sub pages etc
 [testing](../master/docs/testing.md)
 
 
+Grow bed etc
+-------------
+
+ - the grow bed is build with wood and 3d printed parts
+ - while not strictly necessary (you can build grow beds without 3d printing), 
+ all the parts used either makes building easier, cheaper, or more practical.
+ Also, they offer some esthetic/security benefits (rounded corners etc)
+ 
+ Another important aspect of 3d printed parts: they can be build identically ,
+ regardless of your tooling, as long as you have a 3D printer.
+ 
+cad files (3d printed)
+----------------------
+
+  - for the [grow bed](../master/cad/growbed) (printed corners, assembly helpers)
+  - for the [piping](../master/cad/piping) (outflow/drain and media guard )
+  
+  
+assembly guides, pictures etc comming soon
+
 
 Licence:
 --------
