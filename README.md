@@ -60,7 +60,7 @@ assembly guides, pictures etc comming soon
 Licence:
 --------
 
-GPL until I come up with something better, possibly public domain if possible
+GPL until I come up with something better, possibly public domain 
 
 
 Author:
