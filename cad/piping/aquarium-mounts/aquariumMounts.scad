@@ -4,13 +4,13 @@ aquarium_walls_thickness = 5;//5mm thick glass
 
 angle_mount_thickness = 3;
 
-cornerTubingHolder(tubingDia=tubing_dia,tubingOffset=tubing_offset,thickness=angle_mount_thickness,mountHeight=40,snapOnThickness=aquarium_walls_thickness);
+//cornerTubingHolder(tubingDia=tubing_dia,tubingOffset=tubing_offset,thickness=angle_mount_thickness,mountHeight=40,snapOnThickness=aquarium_walls_thickness);
 
-//sideTubingHolder(tubingDia=tubing_dia, height =30, length=20, thickness=3, snapOnThickness= angle_mount_thickness);
+//tubing_dia
+sideTubingHolder(tubingDia=22, height =30, length=20, thickness=3, snapOnThickness= aquarium_walls_thickness, cutSize=3);
 
 //clip(height=40,length=20,innerDistance=5,thickness=3);
 //steppedConnector2(id=15.5,minOd=17.5,maxOd=20.5,length=15);
-
 
 module cornerTubingHolder(tubingDia, tubingOffset, thickness, mountHeight, snapOnThickness){
   width = 40;
@@ -79,29 +79,37 @@ module cornerTubingHolder(tubingDia, tubingOffset, thickness, mountHeight, snapO
 }
 
 
-module sideTubingHolder(tubingDia, height, length, thickness, snapOnThickness, tubingMountHeight=20, holesNb){
-  tubingDia = 20;
-  od = tubingDia + thickness*2;
+module sideTubingHolder(tubingDia=16, height=40, length=20, thickness=3, snapOnThickness=5, tubingMountHeight=15, cutSize=0, cutAngle=45){
   clearance = 0.1;
+  tubingDia = tubingDia + clearance*2;
+  od = tubingDia + thickness*2;
+  
+  tubingOffset = snapOnThickness/2+tubingDia/2+thickness;
+
+  //actually start from top 
+  rTubingMountHeight = height - tubingMountHeight;
 
   module body(){
-   
+    //main clip
     clip(height=height,length=length,innerDistance=snapOnThickness,thickness=thickness);
-
-    translate([snapOnThickness+thickness*3,length/2+5,tubingMountHeight]) rotate([0,90,90]) steppedConnector2(id=15.5,minOd=17.5,maxOd=20.5,length=15);
-
-    mirror([0,1,0])translate([snapOnThickness+thickness*3,-length/2+5,tubingMountHeight]) rotate([0,90,90]) steppedConnector2(id=15.5,minOd=17.5,maxOd=20.5,length=15);
-
+    //translate([snapOnThickness+thickness*3,length/2+5,tubingMountHeight]) rotate([0,90,90]) steppedConnector2(id=15.5,minOd=17.5,maxOd=20.5,length=15);
+    //mirror([0,1,0])translate([snapOnThickness+thickness*3,-length/2+5,tubingMountHeight]) rotate([0,90,90]) steppedConnector2(id=15.5,minOd=17.5,maxOd=20.5,length=15);
     hull(){
-      translate([snapOnThickness+thickness*3,0,tubingMountHeight]) rotate([0,90,90]) cylinder(h=length,r=tubingDia/2 );
-
-      translate([thickness,0,tubingMountHeight-tubingDia/2]) cube(size=[thickness,length,tubingDia]);
+      translate([tubingOffset,0,rTubingMountHeight]) rotate([0,90,90]) cylinder(h=length,r=od/2,$fn=50 );
+      translate([thickness,0,rTubingMountHeight-od/2]) cube(size=[thickness,length,od]);
     }
 
   }
 
   module holes(){
-    translate([snapOnThickness+thickness*3,-clearance,tubingMountHeight]) rotate([0,90,90]) cylinder(h=length+clearance*2,r=(tubingDia-thickness*2)/2 );
+    //main tubing hole
+    tubingLength = length+clearance*2;
+    tubingHoleDia= tubingDia/2;
+    #translate([tubingOffset,-clearance,rTubingMountHeight]) rotate([0,90,90]) cylinder(h=tubingLength,r=tubingHoleDia );
+
+    //optional cut in main loop
+
+    #translate([tubingOffset,0,rTubingMountHeight+cutSize/2]) rotate([0,cutAngle,0]) cube(size=[cutSize,length,od/2]);
   }
 
   difference () {
@@ -119,7 +127,7 @@ module clip(height,length,innerDistance,thickness)
 
   difference(){
     hull(){
-      translate([0,length,height])  rotate([90,0,0]) cylinder(r=dia/2,h=length);
+      translate([0,length,height])  rotate([90,0,0]) cylinder(r=dia/2,h=length,$fn=30);
       translate([-dia/2,0,0])cube([dia,length,height]);
       //cube([thickness,length,height]);
     }
@@ -130,7 +138,6 @@ module clip(height,length,innerDistance,thickness)
     }
   }
 }
-
 
 module steppedConnector(minId,maxId,thickness,length,steps=4,stepDepth=0.5){
   minOD = minId + thickness * 2;
@@ -187,4 +194,8 @@ module steppedConnector2(id,minOd,maxOd,length,tipLength=1.5,steps=3,stepDepth=0
    
     translate([0,0,-clearance]) cylinder(r2 = id/2, r1 = id/2,h=length*2+clearance*2);
   }
+}
+
+module tubingAdaptator(){
+
 }
