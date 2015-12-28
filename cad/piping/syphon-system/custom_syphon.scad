@@ -221,9 +221,11 @@ module container(height=40,dia=30){
 	guide_extra = 1.75;
 	guide_side_width = 6;
 	inletWall_thickness_real = walls+guide_extra;
+	guide_actualCenter_xOffset = -walls+inletWall_thickness_real/2;//since the guide is not centered on zero, we need to offset things 
 
 	guide_zOffset   = 2;//how much of an inset into the bottom we want
-	guide_thickness = 1.5;
+	sideRail_width = 4; //how much of an inset into the sides we want
+	guide_thickness = 1.5; //the thickness of the inset
 	guide_width     = inletWall_width;
 	guide_height    = inletWall_height+guide_zOffset;
 	
@@ -284,11 +286,11 @@ module container(height=40,dia=30){
 
 
 		//cuts for "modular inlet wall"
-	
+		//main cut
 		translate([-inletWall_thickness+adjust,-inletWall_width/2,inletWall_zOffset])  cube(size=[inletWall_thickness, inletWall_width, inletWall_height]);
 		
 		for (a =[-1,1]){
-			translate([guide_xOffset,(-inletWall_width/2-4)*a,inletWall_zOffset-guide_zOffset]) 
+			translate([guide_actualCenter_xOffset-guide_thickness/2,(-inletWall_width/2-4)*a,inletWall_zOffset-guide_zOffset]) 
 				mirror([0,a-1,0])
 				cube(size=[guide_thickness, guide_width, guide_height]);
 		}
@@ -300,20 +302,49 @@ module container(height=40,dia=30){
 
 		
 	//inlet wall itself, print seperatly
-	translate([-inletWall_thickness+adjust,-inletWall_width/2,inletWall_zOffset]) 
-		#cube(size=[inletWall_thickness_real,inletWall_width,inletWall_height]);
+	//
+	
+	//
+	inlet_spout_dia = inlet_dia +2;
+	inlet_spout_len = 3;
+	connector_width = inletWall_width+sideRail_width*2;
+
+	/*translate([0,0,inletWall_zOffset+inletWall_height/2]) 
+	mirror([1,0,0])
+	difference(){
+		union(){
+			//main block
+			cube(size=[inletWall_thickness_real,inletWall_width,inletWall_height],center=true);
+
+			//mating connector
+			translate([0,0,-guide_zOffset/2])
+			cube(size=[guide_thickness,connector_width,inletWall_height+guide_zOffset],center=true);
+			
+
+			//Spout positive
+			translate([inletWall_thickness_real/2,0,0])
+				rotate([0,90,0]) cylinder(d=inlet_spout_dia,h=inlet_spout_len, $fn=50);
+			
+		}
+		
+		//Spout hole
+		translate([-inletWall_thickness_real/2-adjust,0,0]) rotate([0,90,0]) 
+			cylinder(d=inlet_dia,h=inletWall_thickness_real+inlet_spout_len+adjust*2, $fn=50);
+	}*/
+		
 
 }
 
-//translate([0,0,15])
-//basket(height=30);
 
 basket_OD = main_dia-walls*2-0.5;
 echo("generating");
 
 container(height = body_length, dia=main_dia);
-%translate([0,0,25])	basket(height=30,dia=basket_OD);
+%translate([0,0,20])	basket(height=30,dia=basket_OD);
 %translate([0,4,75])  rotate([90,0,0]) hingeLever();
+
+//for demo only
+//translate([0,0,5]) %color([0,0.5,1,0.5]) halfCircle(dia=main_dia, height=50, cutOffset=0, orient=-1);
 
 //for testing only
 //cube([100,100,27],center=true);
