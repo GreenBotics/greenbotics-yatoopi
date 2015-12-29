@@ -79,7 +79,7 @@ module hingeAttach(width=3, baseWith=3, baseOffset=1.5, dia=6, holeDia=3){
 }
 
 
-module hinged_valve(valve_dia=40,base_dia=52,base_height=5,valve_height=3, generate){
+module hinged_valve(valve_dia=40, valve_height=3, base_dia=52, base_height=5, generate){
 	overlap = 3; //how much overlap between valve and base
 
 	hinge_od = 3.25;
@@ -103,6 +103,7 @@ module hinged_valve(valve_dia=40,base_dia=52,base_height=5,valve_height=3, gener
 					//top attachement
 					translate([valve_dia/2-walls,1.5,valve_height+5]) rotate([90,-180,0]) hingeAttach(baseOffset=0);
 
+					//main shape
 					halfCircle(valve_dia,valve_height);
 
 					//hinge
@@ -131,7 +132,7 @@ module hinged_valve(valve_dia=40,base_dia=52,base_height=5,valve_height=3, gener
 							rotate([0,90,-90*a]) cylinder(h=hinge_ol,d=hinge_od, $fn=50);
 						
 						translate([0,(hinge_y_offset-hinge_od+0.25)*a,hinge_z_offset-hinge_od/3.5])
-							rotate([0,0,-180*a])cube(size=[hinge_od,hinge_ol,hinge_od/2],center=true);
+							#rotate([0,0,-180*a])cube(size=[hinge_od,hinge_ol,hinge_od/2],center=true);
 						
 					}
 				}			
@@ -260,7 +261,7 @@ module container(height=40,dia=30,generate="container"){
 				%translate([-0,1.5,height+5]) rotate([90,-180,0]) hingeAttach();
 
 				//base with hinged valve
-				hinged_valve(	base_dia=dia, base_height = 5, valve_height = 3, generate="base");
+				hinged_valve(	base_dia=dia, base_height = 5, valve_height = hinge_od, generate="base");
 				//hinge extra, otherwise walls are too thin
 				intersection(){
 					union(){
@@ -329,12 +330,17 @@ module container(height=40,dia=30,generate="container"){
 	//inlet wall itself, print seperatly
 	if(generate=="wall"){
 
+	tweaker 							= 0.1;
+	inlet_spout_dia       = inlet_dia +2;
+	inlet_spout_len       = 3;
 
-	inlet_spout_dia = inlet_dia +2;
-	inlet_spout_len = 3;
-	connector_width = inletWall_width+sideRail_width*2-adjust*2;
-	connector_thickness = guide_thickness - adjust *2;
-	connector_block_width = inletWall_width - adjust *2;
+	wall_width            = inletWall_width - tweaker * 4 ;
+	connector_width       = inletWall_width + sideRail_width * 2 - tweaker * 2;
+	connector_thickness   = guide_thickness - tweaker * 2;
+	connector_block_width = inletWall_width - tweaker * 1;
+
+	echo("connector_width",connector_width,"vs",inletWall_width+sideRail_width*2);
+	echo("connector_thickness",connector_thickness,"vs",guide_thickness);
 
 		translate([0,0,inletWall_zOffset+inletWall_height/2]) 
 		mirror([1,0,0])
@@ -368,7 +374,7 @@ echo("generating");
 //here enter either generate= ["valve","wall","container"]
 difference(){
 	container(height = length, dia=main_dia, generate="container");
-	translate([0,0,58])cube(size=[100,100,100],center=true);
+	//translate([0,0,58])cube(size=[100,100,100],center=true);
 }
 %translate([0,0,20])	basket(height=30,dia=basket_OD);
 %translate([0,4,75])  rotate([90,0,0]) hingeLever();
