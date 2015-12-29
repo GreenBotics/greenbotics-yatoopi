@@ -9,14 +9,13 @@ containerVolume = 150;//Liter
 
 ///
 adjust = 0.05;
-hole_adjust = 0.1;
+hole_adjust = 0.3;
 
 length=70;
-main_dia= 52;//should be inner diameter of media guard
+main_dia= 51;//should be inner diameter of media guard
 walls = 2.5;
 inlets_dia=8;
 
-body_length = length;
 center_hole_dia = main_dia-(walls*2);
 
 
@@ -72,19 +71,19 @@ module hingeAttach(width=3, baseWith=3, baseOffset=1.5, dia=6, holeDia=3){
 
 	difference(){
 		hull(){
-			cylinder(h=width,d=dia,center=false,$fn=20);
+			cylinder(h=width,d=dia,center=false,$fn=100);
 			translate([baseOffset,dia/2,width/2]) cube(size=[baseWith,dia,width],center=true);
 		}
-		translate([0,0,-adjust]) cylinder(h=width+adjust*2,d=holeDia,center=false,$fn=20);
+		translate([0,0,-adjust]) cylinder(h=width+adjust*2,d=holeDia,center=false,$fn=50);
 	}
 }
 
 
-module hinged_valve(valve_dia=40,base_dia=52,base_height=5,valve_height=3){
+module hinged_valve(valve_dia=40,base_dia=52,base_height=5,valve_height=3, generate){
 	overlap = 3; //how much overlap between valve and base
 
 	hinge_od = 3.25;
-	hinge_id = 1.75;
+	hinge_id = 1.75+hole_adjust;
 
 	base_id     = valve_dia-overlap*2;
 	
@@ -95,39 +94,50 @@ module hinged_valve(valve_dia=40,base_dia=52,base_height=5,valve_height=3){
 	hinge_il = valve_dia ;//inner length
 	hinge_ol = (base_dia - hinge_il)/2;//outer length : ie for both sides
 
-	%translate([0,0,base_height]){
-		//articulated valve top
-		halfCircle(valve_dia,valve_height);
-
-		//hinge
-		translate([hinge_x_offset, 0, hinge_z_offset - base_height ]) rotate([0,90,90]) 
+	if(generate == "valve"){
+		
+		translate([0,0,base_height]){
+			//articulated valve top
 			difference(){
-				cylinder(h=hinge_il,d=hinge_od,center=true,$fn=50);
-				cylinder(h=hinge_il,d=hinge_id,center=true,$fn=50);
-			}
-		//top attachement
-		translate([valve_dia/2-walls,1.5,valve_height+5]) rotate([90,-180,0]) hingeAttach(baseOffset=0);
-	}
-	
+				union(){
+					//top attachement
+					translate([valve_dia/2-walls,1.5,valve_height+5]) rotate([90,-180,0]) hingeAttach(baseOffset=0);
 
+					halfCircle(valve_dia,valve_height);
 
-	//base 
-	difference(){
-		union(){
-			halfCircle(base_dia,base_height,0.001);
-
-			for (a =[-1,1]){
-				hull(){
-					translate([hinge_x_offset,(hinge_y_offset)*a,hinge_z_offset])
-						rotate([0,90,-90*a]) cylinder(h=hinge_ol,d=hinge_od, $fn=50);
-					
-					translate([0,(hinge_y_offset-hinge_od+0.25)*a,hinge_z_offset-hinge_od/3.5])
-						rotate([0,0,-180*a])cube(size=[hinge_od,hinge_ol,hinge_od/2],center=true);
-					
+					//hinge
+					translate([hinge_x_offset, 0, hinge_z_offset - base_height ]) rotate([0,90,90]) 
+						cylinder(h=hinge_il,d=hinge_od,center=true,$fn=50);
 				}
-			}			
+				union(){
+					translate([hinge_x_offset, 0, hinge_z_offset - base_height ]) rotate([0,90,90]) 
+						cylinder(h=hinge_il,d=hinge_id,center=true,$fn=50);
+				}
+				
+			}
+			
 		}
-		translate([0,0,-adjust]) halfCircle(base_id,base_height+adjust*2);
+	}
+
+	if(generate == "base"){
+		//base 
+		difference(){
+			union(){
+				halfCircle(base_dia,base_height,0.001);
+
+				for (a =[-1,1]){
+					hull(){
+						translate([hinge_x_offset,(hinge_y_offset)*a,hinge_z_offset])
+							rotate([0,90,-90*a]) cylinder(h=hinge_ol,d=hinge_od, $fn=50);
+						
+						translate([0,(hinge_y_offset-hinge_od+0.25)*a,hinge_z_offset-hinge_od/3.5])
+							rotate([0,0,-180*a])cube(size=[hinge_od,hinge_ol,hinge_od/2],center=true);
+						
+					}
+				}			
+			}
+			translate([0,0,-adjust]) halfCircle(base_id,base_height+adjust*2);
+		}
 	}
 
 }
@@ -194,37 +204,33 @@ module basket(height=30, dia=50, holeDia=3){
 }  
 
 //////////
-module container(height=40,dia=30){
+module container(height=40,dia=30,generate="container"){
 	innerBucker_hole_dia = 18;
 	innerBucker_hole_offset = -10;
 
 	inlet_dia    = 10;
-	inlet_height = 60;
-	inlet_length = walls+adjust*2;
-	inlet_width  = dia-5;
-	inlet_lip_length = walls + 3;
-	inlet_lip_height = 1;
-
 	//for valve
 	base_height  = 5;
-	valve_height = 3;
-	
 	hinge_id = 1.75+hole_adjust;
-	hinge_od = hinge_id+2.5;
+	hinge_od = hinge_id+3;
+	hinge_il = 40;
+	valve_height = hinge_od;
 	hinge_z_offset = base_height+valve_height/2;
+	hinge_x_offset = 1.75;
 
-	inletWall_zOffset   = hinge_z_offset+40;
+	//for inlet wall
+	inletWall_zOffset   = hinge_z_offset+35;
 	inletWall_height = height-inletWall_zOffset;
 	inletWall_width  = 40;
 	inletWall_thickness = 2.7;
 
 	guide_extra = 1.75;
-	guide_side_width = 6;
+	guide_side_width = (dia-inletWall_width)/2;
 	inletWall_thickness_real = walls+guide_extra;
 	guide_actualCenter_xOffset = -walls+inletWall_thickness_real/2;//since the guide is not centered on zero, we need to offset things 
 
 	guide_zOffset   = 2;//how much of an inset into the bottom we want
-	sideRail_width = 4; //how much of an inset into the sides we want
+	sideRail_width  = 4; //how much of an inset into the sides we want
 	guide_thickness = 1.5; //the thickness of the inset
 	guide_width     = inletWall_width;
 	guide_height    = inletWall_height+guide_zOffset;
@@ -234,112 +240,136 @@ module container(height=40,dia=30){
 	guide_xOffset = -1;//-inletWall_thickness+guide_thickness/2+0.4;
 
 
-
 	ID= dia;
 	vol = (PI * height * ID) /2;
 	echo("container:","height",height,"ID",ID, "volume",vol,"mm 3" ,"weight:",vol/1000, "gram(s)");
 	innerHeight = height/2;
 	adJVol = (PI * innerHeight * ID) /2;
 	echo("adjusted weight with height",adJVol/1000, "gram(s)");
-
 	echo("inlet wall start at ",inletWall_zOffset,"inletWall height",inletWall_height);
 
-	difference(){
-		union(){
-			bucket(height, dia, innerBucker_hole_dia, innerBucker_hole_offset);
-			
-			//hinge attachement, needs to be added after
-			%translate([-0,1.5,height+5]) rotate([90,-180,0]) hingeAttach();
+	echo("hinge dia",hinge_id);
 
-			//base with hinged valve
-			hinged_valve(	base_height = 5, valve_height = 3);
+	if(generate=="container")
+	{
+		difference(){
+			union(){
+				bucket(height, dia, innerBucker_hole_dia, innerBucker_hole_offset);
+				
+				//hinge attachement, needs to be added after
+				%translate([-0,1.5,height+5]) rotate([90,-180,0]) hingeAttach();
 
-			//holders for "modular inlet wall"
-			for (a =[-1,1]){
-				translate([0,-dia/2*a,0])
-					mirror([0,a-1,0])
-					cube(size=[guide_extra, guide_side_width , height]);
+				//base with hinged valve
+				hinged_valve(	base_dia=dia, base_height = 5, valve_height = 3, generate="base");
+				//hinge extra, otherwise walls are too thin
+				intersection(){
+					union(){
+						translate([hinge_x_offset-hinge_od/2,-(dia+adjust)/2,hinge_z_offset-hinge_od/2+adjust])  cube(size=[hinge_od, dia+adjust*2, hinge_od]);
+						translate([hinge_x_offset, 0, hinge_z_offset+hinge_od/2])  rotate([90,0,0]) cylinder(h=dia, d=hinge_od, center=true, $fn=100);
+					}
+					cylinder(d=dia,h=height,$fn=100);
+				}
+
+
+				//holders for "modular inlet wall"
+				for (a =[-1,1]){
+					translate([0,-dia/2*a,0])
+						mirror([0,a-1,0])
+						cube(size=[guide_extra, guide_side_width , height]);
+				}
+
+				//transition thingy
+				transition_dia = 1.75;
+				transition_width = inletWall_width+2;
+				transition_extraHeight = 5;
+
+				translate([transition_dia,transition_width/2,inletWall_zOffset-transition_extraHeight-transition_dia])
+				rotate([90,0,0])
+					difference(){
+						union(){
+							translate([-transition_dia,0,0 ])
+							cube(size=[transition_dia,transition_dia,transition_width]);
+						translate([-transition_dia,transition_dia,0 ])
+							cube(size=[transition_dia,transition_extraHeight,transition_width]);
+						}
+						cylinder(d=transition_dia*2,h=transition_width,$fn=50);
+						
+					}
 			}
 
-			//transition thingy
-			transition_dia = 1.75;
-			transition_width = inletWall_width+2;
-			transition_extraHeight = 5;
+			//hinge cutouts
+			translate([hinge_x_offset,0,hinge_z_offset])  rotate([90,-180,0]) cylinder(h=dia,d=hinge_id,center=true,$fn=100);
+			translate([hinge_x_offset,0,hinge_z_offset])  rotate([90,-180,0]) cylinder(h=40,d=hinge_od,center=true,$fn=100);
+				//front extra
+			translate([hinge_x_offset,-hinge_il/2,hinge_z_offset-hinge_od/2+adjust])  cube(size=[hinge_od*2, hinge_il, hinge_od]);
+				//top
+			translate([hinge_x_offset-guide_extra,-hinge_il/2,hinge_z_offset])  cube(size=[hinge_od, hinge_il, hinge_od]);
 
-			translate([transition_dia,transition_width/2,inletWall_zOffset-transition_extraHeight-transition_dia])
-			rotate([90,0,0])
-				difference(){
-					union(){
-						translate([-transition_dia,0,0 ])
-						cube(size=[transition_dia,transition_dia,transition_width]);
-					translate([-transition_dia,transition_dia,0 ])
-						cube(size=[transition_dia,transition_extraHeight,transition_width]);
-					}
-					cylinder(d=transition_dia*2,h=transition_width,$fn=50);
-					
-				}
+
+			//cuts for "modular inlet wall"
+			//main cut
+			translate([-inletWall_thickness+adjust,-inletWall_width/2,inletWall_zOffset])  cube(size=[inletWall_thickness, inletWall_width, inletWall_height]);
+			
+			for (a =[-1,1]){
+				translate([guide_actualCenter_xOffset-guide_thickness/2,(-inletWall_width/2-4)*a,inletWall_zOffset-guide_zOffset]) 
+					mirror([0,a-1,0])
+					cube(size=[guide_thickness, guide_width, guide_height]);
+			}
+			
 		}
+	}
 
-		//hinge cutout
-		translate([0,0,hinge_z_offset])  rotate([90,-180,0]) cylinder(h=dia,d=hinge_id,center=true,$fn=20);
-		translate([0,0,hinge_z_offset])  rotate([90,-180,0]) cylinder(h=40,d=hinge_od,center=true,$fn=20);
-
-
-		//cuts for "modular inlet wall"
-		//main cut
-		translate([-inletWall_thickness+adjust,-inletWall_width/2,inletWall_zOffset])  cube(size=[inletWall_thickness, inletWall_width, inletWall_height]);
-		
-		for (a =[-1,1]){
-			translate([guide_actualCenter_xOffset-guide_thickness/2,(-inletWall_width/2-4)*a,inletWall_zOffset-guide_zOffset]) 
-				mirror([0,a-1,0])
-				cube(size=[guide_thickness, guide_width, guide_height]);
-		}
-		//cut for outlet/inlet
-		//translate([-inlet_length/2,0,inlet_height]) rotate([90,0,90]) cylinder(d=inlet_dia, h= inlet_length*2, $fn=20,center=true);
-		//translate([-inlet_length/2,0,inlet_height]) cube(size=[inlet_length*2, inlet_width, inlet_dia],center=true);
-
+	//valve itself
+	if(generate == "valve")
+	{
+		hinged_valve(base_dia=dia,	base_height = 5, valve_height = 3, generate="valve");
 	}
 
 		
 	//inlet wall itself, print seperatly
-	//
-	
-	//
+	if(generate=="wall"){
+
+
 	inlet_spout_dia = inlet_dia +2;
 	inlet_spout_len = 3;
-	connector_width = inletWall_width+sideRail_width*2;
+	connector_width = inletWall_width+sideRail_width*2-adjust*2;
+	connector_thickness = guide_thickness - adjust *2;
+	connector_block_width = inletWall_width - adjust *2;
 
-	/*translate([0,0,inletWall_zOffset+inletWall_height/2]) 
-	mirror([1,0,0])
-	difference(){
-		union(){
-			//main block
-			cube(size=[inletWall_thickness_real,inletWall_width,inletWall_height],center=true);
+		translate([0,0,inletWall_zOffset+inletWall_height/2]) 
+		mirror([1,0,0])
+		difference(){
+			union(){
+				//main block
+				cube(size=[inletWall_thickness_real,inletWall_width,inletWall_height],center=true);
 
-			//mating connector
-			translate([0,0,-guide_zOffset/2])
-			cube(size=[guide_thickness,connector_width,inletWall_height+guide_zOffset],center=true);
+				//mating connector
+				translate([0,0,-guide_zOffset/2])
+				cube(size=[connector_thickness,connector_width,inletWall_height+guide_zOffset],center=true);
+				
+
+				//Spout positive
+				translate([inletWall_thickness_real/2,0,0])
+					rotate([0,90,0]) cylinder(d=inlet_spout_dia,h=inlet_spout_len, $fn=50);
+				
+			}
 			
-
-			//Spout positive
-			translate([inletWall_thickness_real/2,0,0])
-				rotate([0,90,0]) cylinder(d=inlet_spout_dia,h=inlet_spout_len, $fn=50);
-			
+			//Spout hole
+			translate([-inletWall_thickness_real/2-adjust,0,0]) rotate([0,90,0]) 
+				cylinder(d=inlet_dia,h=inletWall_thickness_real+inlet_spout_len+adjust*2, $fn=50);
 		}
-		
-		//Spout hole
-		translate([-inletWall_thickness_real/2-adjust,0,0]) rotate([0,90,0]) 
-			cylinder(d=inlet_dia,h=inletWall_thickness_real+inlet_spout_len+adjust*2, $fn=50);
-	}*/
-		
+	}
 
 }
 
 
-basket_OD = main_dia-walls*2-0.5;
+basket_OD = main_dia-walls*2-0.8;//0.8 is cleareance 
 echo("generating");
-
-container(height = body_length, dia=main_dia);
+//here enter either generate= ["valve","wall","container"]
+difference(){
+	container(height = length, dia=main_dia, generate="container");
+	translate([0,0,58])cube(size=[100,100,100],center=true);
+}
 %translate([0,0,20])	basket(height=30,dia=basket_OD);
 %translate([0,4,75])  rotate([90,0,0]) hingeLever();
 
