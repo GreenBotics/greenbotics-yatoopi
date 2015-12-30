@@ -240,7 +240,7 @@ module container(height=40,dia=30,generate="container"){
 				bucket(height, dia, innerBucker_hole_dia, innerBucker_hole_offset);
 				
 				//hinge attachement, needs to be added after
-				%translate([-0,1.5,height+5]) rotate([90,-180,0]) hingeAttach();
+				%translate([-0,1.5,height+5]) rotate([90,-180,0]) hingeAttach(baseOffsetX=0,baseOffsetZ=5);
 
 				//base with hinged valve
 				hinged_valve(	base_dia=dia, base_height = 5, valve_height = hinge_od, generate="base");
@@ -308,10 +308,10 @@ module container(height=40,dia=30,generate="container"){
 		hinged_valve(base_dia=dia,	base_height = 5, valve_cut=hinge_x_offset, valve_dia =hinge_il- adjust*2, valve_height = hinge_od, hinge_od=hinge_od, hinge_id=hinge_id, generate="valve");
 	}
 
+
+
 		
 	//inlet wall itself, print seperatly
-	if(generate=="wall"){
-
 	tweaker 							= 0.1;
 	inlet_spout_dia       = inlet_dia +2;
 	inlet_spout_len       = 3;
@@ -321,8 +321,9 @@ module container(height=40,dia=30,generate="container"){
 	connector_thickness   = guide_thickness - tweaker * 2;
 	connector_block_width = inletWall_width - tweaker * 1;
 
-	echo("connector_width",connector_width,"vs",inletWall_width+sideRail_width*2);
-	echo("connector_thickness",connector_thickness,"vs",guide_thickness);
+	if(generate=="wall"){
+		echo("connector_width",connector_width,"vs",inletWall_width+sideRail_width*2);
+		echo("connector_thickness",connector_thickness,"vs",guide_thickness);
 
 		translate([0,0,inletWall_zOffset+inletWall_height/2]) 
 		mirror([1,0,0])
@@ -348,14 +349,24 @@ module container(height=40,dia=30,generate="container"){
 		}
 	}
 
+	if(generate == "hinge"){
+		hinge_attach_height = 10;
+		//hinge attachement, needs to be added after
+		difference(){
+			hingeAttach(baseOffsetX=0,baseOffsetZ=14,baseWith=10, width=8);
+			translate([0,-2,0])#cube(size=[inletWall_thickness_real,hinge_attach_height,20],center=true);
+		}
+
+	}
+
 }
 
 
 basket_OD = main_dia-walls*2-0.8;//0.8 is cleareance 
 echo("generating");
-//here enter either generate= ["valve","wall","container"]
+//here enter either generate= ["valve","wall","container","hinge"]
 difference(){
-	container(height = length, dia=main_dia, generate="valve");
+	container(height = length, dia=main_dia, generate="hinge");
 	//translate([0,0,58])cube(size=[100,100,100],center=true);
 }
 
