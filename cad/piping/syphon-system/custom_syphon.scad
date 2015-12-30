@@ -40,13 +40,6 @@ module bucket_holes(height, dia, holeDia, holeOffset, cutOffset=0){
 
 	union(){
 
-		/*translate ([0,0,bottomThickness]) 
-			difference(){
-				innerDia= dia-walls*2;
-				innerHeight = height-walls;
-				cylinder(h=height,d=innerDia,center=false,$fn=100);
-				translate ([innerDia/2-walls-cutOffset,0,innerHeight/2])cube(size=[innerDia,innerDia,innerHeight+adjust*2],center=true);
-			}*/
 		innerDia    = dia-walls*2;
 		innerHeight = height-bottomThickness+adjust;
 		innercutOffset   = walls+cutOffset;
@@ -54,7 +47,7 @@ module bucket_holes(height, dia, holeDia, holeOffset, cutOffset=0){
 		translate ([0,0,bottomThickness]) halfCircle(innerDia, innerHeight, innercutOffset, orient=1);
 
 		//outlet hole
-		translate ([holeOffset-cutOffset+holeDia/2,0,-adjust]) cylinder(h=bottomThickness+adjust*2,d=holeDia,center=false,$fn=50);
+		translate ([-cutOffset-holeOffset,0,-adjust]) cylinder(h=bottomThickness+adjust*2,d=holeDia,center=false,$fn=100);
 	}
 }
 
@@ -66,13 +59,15 @@ module bucket(height, dia, holeDia, holeOffset, cutOffset=0){
 }
 
 
-module hingeAttach(width=3, baseWith=3, baseOffset=1.5, dia=6, holeDia=3){
-	offset = 10;
+module hingeAttach(width=3, baseWith=3, baseOffsetX=1.5, baseOffsetZ=0 , dia=6, holeDia=3){
+	//baseOffsetX  = baseWith/2
+	//baseOffsetZ = dia/2
 
+	translate([0,-baseOffsetZ,0])
 	difference(){
 		hull(){
 			cylinder(h=width,d=dia,center=false,$fn=100);
-			translate([baseOffset,dia/2,width/2]) cube(size=[baseWith,dia,width],center=true);
+			translate([baseOffsetX, baseOffsetZ, width/2]) cube(size=[baseWith,dia,width],center=true);
 		}
 		translate([0,0,-adjust]) cylinder(h=width+adjust*2,d=holeDia,center=false,$fn=50);
 	}
@@ -107,7 +102,7 @@ module hinged_valve(valve_dia=40, valve_height=3, base_dia=52, base_height=5, hi
 			difference(){
 				union(){
 					//top attachement
-					translate([valve_dia/2-walls,1.5,valve_height+5]) rotate([90,-180,0]) hingeAttach(baseOffset=0);
+					translate([valve_dia/2-walls,1.5,valve_height+5]) rotate([90,-180,0]) hingeAttach(baseOffsetX=0);
 
 					//main shape
 					halfCircle(valve_dia,height,valve_cut);
@@ -159,47 +154,39 @@ module basket(height=30, dia=50, holeDia=3){
 
 	xtraClearance = 0.5;
 	
-	latch_height = height;
-	latch_width  = 10;
-	latch_length = 8;
-	latch_hole_width = 5;
-	latch_top = 3;
-
-	//dia    = main_dia-walls*2-xtraClearance;
 	OD 	= dia;
 	ID 	= dia-walls*2;
 	vol = (PI * height * ID) /2;
 
+	attach_zOffset = height;
+	attach_xOffset = -OD/2+walls/2+1.8;
+	attach_holeDia = 3;
+
+	//overall x axis offset
+	cut_offset = walls +xtraClearance/2;
+	//bucket params
+	outHoleLipsWidth        = 2;
+	realHalfDia 						= OD/2-cut_offset;
+
+	innerBucker_hole_dia 		= ID /2 - outHoleLipsWidth * 2 - walls*2; 
+	innerBucker_hole_offset = realHalfDia/2;
+
 	echo("basket:","height",height,"OD",OD,"ID",ID, "volume",vol,"mm 3" ,"weight:",vol/1000, "gram(s)");
 
-	//how far appart are latches
-	latch_offset = OD/2-latch_length;
-	//overall x axis offset
-	start_offset = walls +xtraClearance/2;
+	union(){
+		//bucket shape itself
+		bucket(height, OD, innerBucker_hole_dia, innerBucker_hole_offset, cut_offset);
 
-	module latch(){
-		translate([0,-latch_length/2,0])
-		difference(){
-			cube(size=[latch_width,latch_length,latch_height]);
-			union(){
-				cube(size=[latch_hole_width,latch_length,latch_height-latch_top]);
-			}
-		}
+		//attachement with hole 
+		translate([attach_xOffset,walls/2,attach_zOffset]) rotate([90,-180,0]) hingeAttach(baseOffsetZ=5,holeDia=attach_holeDia);
 	}
-
-	translate([-OD/2+walls/2+1.8,1.5,height+5]) rotate([90,-180,0]) hingeAttach();
 	
-	innerBucker_hole_dia 		= holeDia;
-	innerBucker_hole_offset = -OD/4;
-	
-	bucket(height, OD, innerBucker_hole_dia, innerBucker_hole_offset, start_offset);
-
 }  
 
 //////////
 module container(height=40,dia=30,generate="container"){
 	innerBucker_hole_dia = 18;
-	innerBucker_hole_offset = -10;
+	innerBucker_hole_offset = 0;
 
 	inlet_dia    = 10;
 	//for valve
@@ -365,11 +352,11 @@ basket_OD = main_dia-walls*2-0.8;//0.8 is cleareance
 echo("generating");
 //here enter either generate= ["valve","wall","container"]
 difference(){
-	//container(height = length, dia=main_dia, generate="valve");
+	//container(height = length, dia=main_dia, generate="container");
 	//translate([0,0,58])cube(size=[100,100,100],center=true);
 }
 
-translate([0,0,20])	basket(height=30,dia=basket_OD);
+translate([0,0,20])	basket(height=20,dia=basket_OD);
 %translate([0,4,75])  rotate([90,0,0]) hingeLever();
 
 //for demo only
