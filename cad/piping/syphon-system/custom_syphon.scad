@@ -79,16 +79,22 @@ module hingeAttach(width=3, baseWith=3, baseOffset=1.5, dia=6, holeDia=3){
 }
 
 
-module hinged_valve(valve_dia=40, valve_height=3, base_dia=52, base_height=5, generate){
+module hinged_valve(valve_dia=40, valve_height=3, base_dia=52, base_height=5, hinge_od=3.25, hinge_id=1.75, valve_cut=0, generate){
 	overlap = 3; //how much overlap between valve and base
 
-	hinge_od = 3.25;
-	hinge_id = 1.75+hole_adjust;
+	/*hinge_od = 3.25;
+	hinge_id = 1.75+hole_adjust;*/
+
+	height = valve_height;
+	/*if(hinge_od > valve_height){
+		height = valve_height;
+	}
+	echo("height",valve_height, hinge_od);*/
 
 	base_id     = valve_dia-overlap*2;
 	
 	hinge_z_offset = base_height+valve_height/2;
-	hinge_x_offset = 0;
+	hinge_x_offset = valve_cut;
 	hinge_y_offset = base_dia/2;
 
 	hinge_il = valve_dia ;//inner length
@@ -104,7 +110,7 @@ module hinged_valve(valve_dia=40, valve_height=3, base_dia=52, base_height=5, ge
 					translate([valve_dia/2-walls,1.5,valve_height+5]) rotate([90,-180,0]) hingeAttach(baseOffset=0);
 
 					//main shape
-					halfCircle(valve_dia,valve_height);
+					halfCircle(valve_dia,height,valve_cut);
 
 					//hinge
 					translate([hinge_x_offset, 0, hinge_z_offset - base_height ]) rotate([0,90,90]) 
@@ -123,26 +129,12 @@ module hinged_valve(valve_dia=40, valve_height=3, base_dia=52, base_height=5, ge
 	if(generate == "base"){
 		//base 
 		difference(){
-			union(){
-				halfCircle(base_dia,base_height,0.001);
-
-				for (a =[-1,1]){
-					hull(){
-						translate([hinge_x_offset,(hinge_y_offset)*a,hinge_z_offset])
-							rotate([0,90,-90*a]) cylinder(h=hinge_ol,d=hinge_od, $fn=50);
-						
-						translate([0,(hinge_y_offset-hinge_od+0.25)*a,hinge_z_offset-hinge_od/3.5])
-							#rotate([0,0,-180*a])cube(size=[hinge_od,hinge_ol,hinge_od/2],center=true);
-						
-					}
-				}			
-			}
+			halfCircle(base_dia,base_height,0.001);
 			translate([0,0,-adjust]) halfCircle(base_id,base_height+adjust*2);
 		}
 	}
 
 }
-
 
 
 module hingeLever(distance=40,width = 5, dia=6, holeDia=3){
@@ -323,7 +315,7 @@ module container(height=40,dia=30,generate="container"){
 	//valve itself
 	if(generate == "valve")
 	{
-		hinged_valve(base_dia=dia,	base_height = 5, valve_height = 3, generate="valve");
+		hinged_valve(base_dia=dia,	base_height = 5, valve_cut=hinge_x_offset, valve_dia =hinge_il- adjust*2, valve_height = hinge_od, hinge_od=hinge_od, hinge_id=hinge_id, generate="valve");
 	}
 
 		
@@ -373,10 +365,11 @@ basket_OD = main_dia-walls*2-0.8;//0.8 is cleareance
 echo("generating");
 //here enter either generate= ["valve","wall","container"]
 difference(){
-	container(height = length, dia=main_dia, generate="container");
+	//container(height = length, dia=main_dia, generate="valve");
 	//translate([0,0,58])cube(size=[100,100,100],center=true);
 }
-%translate([0,0,20])	basket(height=30,dia=basket_OD);
+
+translate([0,0,20])	basket(height=30,dia=basket_OD);
 %translate([0,4,75])  rotate([90,0,0]) hingeLever();
 
 //for demo only
