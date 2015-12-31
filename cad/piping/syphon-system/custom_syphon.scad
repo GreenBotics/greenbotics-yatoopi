@@ -175,7 +175,7 @@ module basket(height=30, dia=50, holeDia=3){
 	innerBucker_hole_offset = realHalfDia/2;
 
 	echo("basket:","height",height,"OD",OD,"ID",ID, "volume",vol,"mm 3" ,"weight:",vol/1000, "gram(s)");
-
+	echo("innerBucker_hole_dia",innerBucker_hole_dia);
 	union(){
 		//bucket shape itself
 		bucket(height, OD, innerBucker_hole_dia, innerBucker_hole_offset, cut_offset);
@@ -361,6 +361,24 @@ module container(height=40,dia=30,generate="container"){
 
 }
 
+module hole_adaptor(OD =11.1, ID=1, h =2, lipsWidth=2, lipsHeight=0.5, cleareance=0.5){
+
+	//11.1
+	rOD= 11.1 - cleareance ;
+	lipsOD = OD + lipsWidth*2;
+	difference(){
+		union(){
+			cylinder(d=lipsOD,h=lipsHeight,$fn=100);
+			cylinder(d=rOD,h=h,$fn=100);
+		}
+
+		//hole
+		cylinder(d=ID,h=h+1,$fn=100);
+	}
+
+}
+
+/////////////////
 
 basket_OD = main_dia-walls*2-0.8;//0.8 is cleareance 
 echo("generating");
@@ -372,6 +390,11 @@ difference(){
 
 %translate([0,0,20])	basket(height=20,dia=basket_OD);
 %translate([0,4,75])  rotate([90,0,0]) hingeLever();
+
+//"plug" for basket
+//hole_adaptor(ID=6);
+
+
 
 //for demo only
 //translate([0,0,5]) %color([0,0.5,1,0.5]) halfCircle(dia=main_dia, height=50, cutOffset=0, orient=-1);
